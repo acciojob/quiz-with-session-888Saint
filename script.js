@@ -1,9 +1,9 @@
-// Retrieve references to DOM elements
+// Retrieve DOM elements
 const questionsElement = document.getElementById("questions");
 const submitButton = document.getElementById("submit");
 const scoreElement = document.getElementById("score");
 
-// Sample Questions Data
+// Quiz Data
 const questions = [
   {
     question: "What is the capital of France?",
@@ -35,37 +35,42 @@ const questions = [
 // Load previous answers from sessionStorage
 let userAnswers = JSON.parse(sessionStorage.getItem("progress")) || [];
 
-// Display the quiz questions and choices
+// Render Quiz Questions
 function renderQuestions() {
-  questionsElement.innerHTML = "";
+  questionsElement.innerHTML = ""; // Clear previous content
+
   questions.forEach((question, index) => {
     const questionElement = document.createElement("div");
-    questionElement.innerHTML = `<p><strong>${index + 1}. ${
-      question.question
-    }</strong></p>`;
+    questionElement.innerHTML = `<p><strong>${question.question}</strong></p>`;
+
     question.choices.forEach((choice) => {
       const choiceElement = document.createElement("input");
       choiceElement.setAttribute("type", "radio");
       choiceElement.setAttribute("name", `question-${index}`);
       choiceElement.setAttribute("value", choice);
+
+      // Persist checked option after reload
       if (userAnswers[index] === choice) {
         choiceElement.setAttribute("checked", true);
       }
+
       choiceElement.addEventListener("change", (e) => {
         userAnswers[index] = e.target.value;
         sessionStorage.setItem("progress", JSON.stringify(userAnswers));
       });
+
       const choiceLabel = document.createElement("label");
       choiceLabel.innerText = choice;
       questionElement.appendChild(choiceElement);
       questionElement.appendChild(choiceLabel);
       questionElement.appendChild(document.createElement("br"));
     });
+
     questionsElement.appendChild(questionElement);
   });
 }
 
-// Calculate and display the final score
+// Calculate and Display Score
 function calculateScore() {
   let score = 0;
   userAnswers.forEach((answer, index) => {
@@ -78,7 +83,7 @@ function calculateScore() {
   sessionStorage.removeItem("progress"); // Clear progress after submission
 }
 
-// Event listener for Submit button
+// Submit Button Event Listener
 submitButton.addEventListener("click", () => {
   if (userAnswers.length !== questions.length || userAnswers.includes(undefined)) {
     alert("Please answer all questions before submitting!");
@@ -87,11 +92,11 @@ submitButton.addEventListener("click", () => {
   calculateScore();
 });
 
-// Initialize the quiz
-renderQuestions();
-
-// Display score from localStorage (if previously saved)
+// Display Saved Score from localStorage on Page Load
 const savedScore = localStorage.getItem("score");
 if (savedScore) {
   scoreElement.innerText = `Last score: ${savedScore} out of ${questions.length}.`;
 }
+
+// Initialize Quiz
+renderQuestions();
